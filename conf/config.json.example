@@ -1,0 +1,21 @@
+{
+  "web": {
+    "port": 3001,
+    "auth": {
+      "username": "admin",
+      "password": "<UPLOAD_PASSWORD>"
+    }
+  },
+  "r2": {
+    "access_key_id": "<R2_ACCESS_KEY_ID>",
+    "secret_access_key": "<R2_SECRET_ACCESS_KEY>",
+    "bucket": "<R2_BUCKET>",
+    "endpoint": "https://<ACCOUNT_ID>.r2.cloudflarestorage.com",
+    "key_prefix": ""
+  },
+  "cdn_base_url": "https://cdn.example.com",
+  "upload": {
+    "id_length": 5,
+    "max_size_mb": 50
+  }
+}

@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>upload.bradroot.me</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <main>
+      <h1>upload</h1>
+
+      <div id="dropzone" class="dropzone">
+        <p>drop, paste, or <label class="link" for="file-input">choose a file</label></p>
+        <input id="file-input" type="file" accept="image/*,video/mp4,video/quicktime,video/webm" hidden />
+        <p class="hint">images and short videos up to <span id="max-size">50</span> MB</p>
+      </div>
+
+      <div id="status" class="status" hidden></div>
+
+      <h2>recent</h2>
+      <ul id="recent" class="recent"></ul>
+    </main>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
