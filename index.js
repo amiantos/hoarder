@@ -185,10 +185,10 @@ function main() {
   // Health check is unauthenticated so external monitors don't need creds
   app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-  const basicConfigured = !!(config.web?.auth?.username && config.web?.auth?.password);
-  const apiKeysConfigured = Array.isArray(config.web?.auth?.api_keys)
-    && config.web.auth.api_keys.some((k) => typeof k === "string" && k.length > 0);
-  const authEnabled = basicConfigured || apiKeysConfigured;
+  // Only basic auth gates the website. api_keys is a side channel for CLI
+  // clients (e.g. lurker) — having keys configured without a username/password
+  // shouldn't force the browser UI behind a login prompt.
+  const authEnabled = !!(config.web?.auth?.username && config.web?.auth?.password);
   if (authEnabled) {
     app.use(authMiddleware(config.web.auth));
   }

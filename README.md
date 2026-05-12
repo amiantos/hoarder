@@ -79,7 +79,7 @@ Visit `http://localhost:3001`.
 | --- | --- |
 | `web.port` | Internal listen port (default 3001) |
 | `web.auth.username` / `web.auth.password` | Basic auth — leave empty to disable |
-| `web.auth.api_keys` | Optional array of bearer tokens for API consumers. Either basic or api_keys (or both) enables auth |
+| `web.auth.api_keys` | Optional array of bearer tokens for API consumers. Only useful alongside basic auth — having keys alone does not gate the website |
 | `r2.access_key_id` / `r2.secret_access_key` | R2 / S3 credentials |
 | `r2.bucket` | Bucket name |
 | `r2.endpoint` | `https://<account-id>.r2.cloudflarestorage.com` |
