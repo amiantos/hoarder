@@ -71,17 +71,52 @@ function openDb() {
   return db;
 }
 
-function basicAuthMiddleware(auth) {
+// Constant-time equality over equal-length buffers. Falsy on length mismatch
+// so the comparison never short-circuits on size alone.
+function safeEqual(a, b) {
+  const aBuf = Buffer.from(a, "utf8");
+  const bBuf = Buffer.from(b, "utf8");
+  if (aBuf.length !== bBuf.length) return false;
+  return crypto.timingSafeEqual(aBuf, bBuf);
+}
+
+function authMiddleware(auth) {
+  const basicConfigured = !!(auth.username && auth.password);
+  const apiKeys = Array.isArray(auth.api_keys)
+    ? auth.api_keys.filter((k) => typeof k === "string" && k.length > 0)
+    : [];
+
+  function challenge(res) {
+    // Advertise both schemes so the browser UI still gets its Basic prompt,
+    // and API clients see Bearer in the WWW-Authenticate header.
+    const schemes = [];
+    if (basicConfigured) schemes.push('Basic realm="Hoarder"');
+    if (apiKeys.length > 0) schemes.push('Bearer realm="Hoarder"');
+    if (schemes.length) res.setHeader("WWW-Authenticate", schemes.join(", "));
+  }
+
   return (req, res, next) => {
-    const header = req.headers.authorization;
-    if (!header || !header.startsWith("Basic ")) {
-      res.setHeader("WWW-Authenticate", 'Basic realm="Hoarder"');
-      return res.status(401).send("Authentication required");
+    const header = req.headers.authorization || "";
+
+    if (apiKeys.length > 0 && header.startsWith("Bearer ")) {
+      const presented = header.slice(7).trim();
+      if (presented && apiKeys.some((k) => safeEqual(k, presented))) return next();
+      challenge(res);
+      return res.status(401).send("Invalid API key");
     }
-    const [user, pass] = Buffer.from(header.slice(6), "base64").toString().split(":");
-    if (user === auth.username && pass === auth.password) return next();
-    res.setHeader("WWW-Authenticate", 'Basic realm="Hoarder"');
-    return res.status(401).send("Invalid credentials");
+
+    if (basicConfigured && header.startsWith("Basic ")) {
+      const decoded = Buffer.from(header.slice(6), "base64").toString();
+      const idx = decoded.indexOf(":");
+      const user = idx >= 0 ? decoded.slice(0, idx) : decoded;
+      const pass = idx >= 0 ? decoded.slice(idx + 1) : "";
+      if (safeEqual(user, auth.username) && safeEqual(pass, auth.password)) return next();
+      challenge(res);
+      return res.status(401).send("Invalid credentials");
+    }
+
+    challenge(res);
+    return res.status(401).send("Authentication required");
   };
 }
 
@@ -150,9 +185,12 @@ function main() {
   // Health check is unauthenticated so external monitors don't need creds
   app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-  const authEnabled = !!(config.web?.auth?.username && config.web?.auth?.password);
+  const basicConfigured = !!(config.web?.auth?.username && config.web?.auth?.password);
+  const apiKeysConfigured = Array.isArray(config.web?.auth?.api_keys)
+    && config.web.auth.api_keys.some((k) => typeof k === "string" && k.length > 0);
+  const authEnabled = basicConfigured || apiKeysConfigured;
   if (authEnabled) {
-    app.use(basicAuthMiddleware(config.web.auth));
+    app.use(authMiddleware(config.web.auth));
   }
 
   app.use(express.json());

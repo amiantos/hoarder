@@ -3,7 +3,8 @@
     "port": 3001,
     "auth": {
       "username": "admin",
-      "password": "<UPLOAD_PASSWORD>"
+      "password": "<UPLOAD_PASSWORD>",
+      "api_keys": []
     }
   },
   "r2": {

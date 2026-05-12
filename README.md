@@ -79,6 +79,7 @@ Visit `http://localhost:3001`.
 | --- | --- |
 | `web.port` | Internal listen port (default 3001) |
 | `web.auth.username` / `web.auth.password` | Basic auth — leave empty to disable |
+| `web.auth.api_keys` | Optional array of bearer tokens for API consumers. Either basic or api_keys (or both) enables auth |
 | `r2.access_key_id` / `r2.secret_access_key` | R2 / S3 credentials |
 | `r2.bucket` | Bucket name |
 | `r2.endpoint` | `https://<account-id>.r2.cloudflarestorage.com` |
@@ -89,6 +90,27 @@ Visit `http://localhost:3001`.
 
 When basic auth is disabled the upload UI hides the delete buttons (the delete
 endpoint is currently commented out anyway, but the UI courtesy stays).
+
+### API keys
+
+API keys are bearer tokens that other applications can use without sharing the
+single browser-UI password. They live in `web.auth.api_keys` as a plain array
+of strings; any value in the list is accepted. Generate one with:
+
+```sh
+node scripts/gen-api-key.js
+```
+
+Use it with `Authorization: Bearer <key>`:
+
+```sh
+curl -H 'Authorization: Bearer <key>' -F file=@photo.png \
+  https://upload.example.com/api/upload
+```
+
+Rotating a key is an edit-and-restart: drop the old value, add the new one,
+restart Hoarder. Multiple keys can coexist so callers can roll over without
+downtime.
 
 ## Cloudflared / proxy-network
 
