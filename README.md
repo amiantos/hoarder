@@ -28,7 +28,7 @@ Dockerfile              node:20 + npm install + start
 1. **Drop / paste / pick.** The frontend `POST`s a multipart `file` field to
    `/api/upload`.
 2. **Validate.** Mime is checked against the allowed list (png, jpeg, gif,
-   webp, avif, svg, mp4, mov, webm). Anything else is rejected with 415.
+   webp, avif, svg, mp4, mov, webm, txt). Anything else is rejected with 415.
 3. **Allocate id.** A 5-character base62 id is generated from
    `crypto.randomBytes`. Collisions retry up to 5 times against the SQLite
    primary key.

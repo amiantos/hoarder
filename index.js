@@ -19,6 +19,7 @@ const ALLOWED_TYPES = {
   "video/mp4": "mp4",
   "video/quicktime": "mov",
   "video/webm": "webm",
+  "text/plain": "txt",
 };
 
 // Mimes we generate raster thumbnails for. SVG is excluded — it scales fine in
